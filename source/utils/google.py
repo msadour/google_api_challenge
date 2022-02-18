@@ -1,5 +1,9 @@
+"""Google module."""
+
 import pickle
 import os
+from typing import Any
+
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from google.auth.transport.requests import Request
@@ -12,7 +16,12 @@ from source.utils.constants import (
 )
 
 
-def create_service():
+def create_service() -> Any:
+    """Create mail service for API.
+
+    Returns:
+      mail service (or None if it failed).
+    """
     cred = None
     pickle_file = f"token_{API_SERVICE_NAME}_{API_VERSION}.pickle"
 
@@ -32,9 +41,7 @@ def create_service():
 
     try:
         service = build(API_SERVICE_NAME, API_VERSION, credentials=cred)
-        print(API_SERVICE_NAME, "service created successfully")
         return service
     except Exception as e:
-        print("Unable to connect.")
-        print(e)
+        print(f"Error : {e}")
         return None

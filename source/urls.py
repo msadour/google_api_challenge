@@ -1,3 +1,5 @@
+"""Urls file."""
+
 from .views import MailViewSet
 from rest_framework.routers import DefaultRouter
 

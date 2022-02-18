@@ -1,3 +1,5 @@
+"""Mail module."""
+
 import base64
 
 from email.mime.multipart import MIMEMultipart
@@ -11,27 +13,34 @@ class MailManager:
     def __init__(self):
         self.service = create_service()
 
-    def send_email(self, to, subject, message_text):
+    def send_email(self, payload):
         """Create a message for an email.
 
         Args:
-          to: receiver.
-          subject:
-          message_text: mail content.
+          payload:
 
         Returns:
           An object containing a base64url encoded email object.
         """
-        email_message = message_text
-        mime_message = MIMEMultipart()
-        mime_message["to"] = to
-        mime_message["from"] = EMAIL
-        mime_message["subject"] = subject
-        mime_message.attach(MIMEText(email_message, "plain"))
-        raw_string = base64.urlsafe_b64encode(mime_message.as_bytes()).decode()
-        self.service.users().messages().send(
-            userId="me", body={"raw": raw_string}
-        ).execute()
+        try:
+            to = payload.data.get("to")
+            subject = payload.data.get("subject", "No subject")
+            message_text = payload.data.get("message_text", "")
+
+            email_message = message_text
+            mime_message = MIMEMultipart()
+            mime_message["to"] = to
+            mime_message["from"] = EMAIL
+            mime_message["subject"] = subject
+            mime_message.attach(MIMEText(email_message, "plain"))
+            raw_string = base64.urlsafe_b64encode(mime_message.as_bytes()).decode()
+            self.service.users().messages().send(
+                userId="me", body={"raw": raw_string}
+            ).execute()
+        except Exception:
+            return "Mail not sent"
+        else:
+            return "Mail sent"
 
     def retrieve_mail(self, filter_content=None):
         all_messages = []

@@ -1,4 +1,7 @@
+"""Views module."""
+
 from rest_framework import viewsets
+from rest_framework.request import Request
 from rest_framework.response import Response
 
 from source.utils.mail import MailManager
@@ -11,17 +14,26 @@ class MailViewSet(viewsets.ViewSet):
 
     mail = MailManager()
 
-    def list(self, request):
+    def list(self, request: Request) -> Response:
+        """Retrieve mail(s).
+
+        Args:
+          request:
+
+        Returns:
+          Response with mails.
+        """
         mails = self.mail.retrieve_mail(filter_content=request.query_params)
         return Response(data={"mails": mails})
 
-    def create(self, request):
-        to = request.data.get("to")
-        subject = request.data.get("subject", "No subject")
-        message_text = request.data.get("message_text", "")
-        try:
-            self.mail.send_email(to, subject, message_text)
-        except Exception as e:
-            return Response({"message": "Mail not sent", "error": str(e)})
-        else:
-            return Response({"message": "Mail sent"})
+    def create(self, request: Request) -> Response:
+        """Send an email.
+
+        Args:
+          request:
+
+        Returns:
+          Response with message who say if it sent or not.
+        """
+        result = self.mail.send_email(payload=request)
+        return Response({"message": result})
